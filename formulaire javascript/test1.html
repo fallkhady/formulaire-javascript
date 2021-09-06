@@ -1,0 +1,213 @@
+s<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Authentification</title>
+        <link rel="stylesheet" href="style.css">
+        <script src="./index.js"></script>
+    </head>
+    <body>
+
+<form class="box" action="javascript:sendmail()" method="POST" enctype="text/plain">
+    <h1>Login</h1>
+    <div class="pseudo-container">
+    <input type="text" name="" placeholder="Prénom" id="pseudo">
+    <span></span>
+    <input type="text" name="" placeholder="Nom" id="noms">
+    <span></span>
+    </div>
+    <div class="email-container">
+    <input type="text" name=""  placeholder="Email" id="email">
+    <span></span>
+    </div>
+    <div class="password-container">
+    <input type="password" name="" placeholder="Password" id="password">
+    <p id="securise"></p>
+    <span></span>
+    </div>
+    <div class="confirm-container">
+    <input type="password" name="" placeholder="Confirm" id="confirm">
+    <span></span>
+    </div>
+    <div class="tel-container">
+    <input type="text" name="" placeholder="Téléphone" id="phone">
+    <span></span>
+    </div>
+    
+    
+        <textarea name="" id="text" cols="30" rows="10">Message</textarea>
+
+
+    <input type="submit" name="" value="Login" onclick="sendEmail()">
+
+
+</form>
+
+<script src="https://smtpjs.com/v3/smtp.js"></script>
+
+<script>
+    const form = document.querySelector("form");
+    const inputs = document.querySelectorAll(
+        'input[type="text"], input[type="password"]'
+    );
+    const securise = document.getElementById("securise");
+    let pseudo,nom, email, password, confirmPassword;
+
+    // console.log(inputs);
+ 
+    const errorDisplay = (tag, message, valid) => {
+        const container = document.querySelector("." + tag + "-container");
+        const span = document.querySelector("." + tag + "-container > span");  
+
+        if(!valid){
+            container.classList.add("error");
+            span.textContent = message;
+        } else{
+            container.classList.remove("error");
+            span.textContent = message;
+        }
+    }
+
+    const pseudoChecker = (value) => {
+        // console.log(value);
+       
+        if (value.length > 0 && (value.length < 3 || value.length > 20)
+        ){
+          errorDisplay("pseudo", "le pseudo doit compris entre 3 et 20 caractères"); 
+          pseudo = null;
+        } else if(!value.match(/^[a-zA-Z0-9_.-]*$/)){
+          errorDisplay("pseudo", "le pseudo ne doit pas contenir de caractères spéciaux"); 
+          pseudo = null;
+            
+        } else{
+         errorDisplay("pseudo", "" , true);
+         pseudo = value;  
+        }
+    }; 
+
+    const nomChecker = (value) => {
+        // console.log(value);
+       
+    //     // if (value.length > 0 && (value.length < 3 || value.length > 20)
+    //     // ){
+    //     //   errorDisplay("name", "le nom doit compris entre 3 et 20 caractères"); 
+    //     //   name = null;
+    //     // } else if(!value.match(/^[a-zA-Z0-9_.-]*$/)){
+    //     //   errorDisplay("name", "le nom ne doit pas contenir de caractères spéciaux"); 
+    //     //   name = null;
+            
+    //     // } else{
+    //     //  errorDisplay("name", "" , true);
+    //     //  name = value;  
+    //     // }
+     }; 
+    const emailChecker = (value) => {
+        // console.log(value);
+         if(!value.match(/^[\w_-]+@[\w-]+\.[a-z]{2,4}$/i)){
+            //  console.log("test");
+             errorDisplay("email", "Le mail n'est pas valide");
+             email = null;
+         } else {
+             errorDisplay("email" , "" , true);  
+             email = value;  
+          }
+    }
+    const passwordChecker = (value) => {
+        // console.log(value);
+        if(!value.match(/^(?=.*?[A-Z])(?=(.*[a-z]){1,})(?=(.*[\d]){1,})(?=(.*[\W]){1,})(?!.*\s).{8,}$/)){
+            // console.log("test ");
+            errorDisplay("password", "Minimum 8 caractères, une majuscule, un chiffre et un caractère spécial");
+            securise.classList.add("securiseRed");
+            password = null;
+        }else if(!value.length < 12){
+            securise.classList.add("securiseBlue"); 
+            errorDisplay("password", "", true);
+            password = value;
+        }
+        if(confirmPassword) confirmChecker(confirmPassword)
+    }
+    const confirmChecker = (value) => {
+        //console.log(value);
+        if(value!== password){
+            // console.log("error");
+            errorDisplay('confirm', "Le mot de passe ne correspond pas");
+            confirmPassword = false;
+
+        } else{
+            errorDisplay("confirm", "", true);
+            confirmPassword = true;
+        }
+    }
+
+
+
+    inputs.forEach((input) => {
+        input.addEventListener("input", (e) =>{
+            // console.log(e.target.id);
+            switch(e.target.id){
+                case "pseudo":
+                    pseudoChecker(e.target.value)
+                    break;
+                case "nom":
+                    nomChecker(e.target.value)
+                    break;
+                case "email":
+                    emailChecker(e.target.value)
+                    break; 
+                case "password":
+                    passwordChecker(e.target.value)
+                    break;
+                case "confirm":
+                    confirmChecker(e.target.value)
+                    break;
+                default:
+                    null;
+            }
+        });
+    });
+
+    form.addEventListener('submit', (e) =>{
+        e.preventDefault();
+        if(pseudo && nom && email && password && confirmPassword){
+            const data ={
+                pseudo,
+                nom,
+                email,
+                password,
+            };
+        console.log(data);
+        inputs.forEach((input)=> (input.value = ""));
+        pseudo = null;
+        nom = null;
+        email = null;
+        password=null; 
+
+        }else{
+            alert("veillez remplir la formulaire");
+
+        }
+
+    });
+
+//     function sendEmail() {
+//         Email.send({
+//         Host: "smtp.elasticemail.com",
+//         Username : "khadyfall298@gmail.com",
+//         Password : "D21BFC70CDED610BFB76A5785450872216D3",
+//         To : 'khadyfall298gmail.com',
+//         From : "softgeekvert@gmail.com",
+//         Subject : "Nouveau message",
+//         Body : "text",
+//         }).then(
+//             message => alert("mail envoyé avec succés")
+//         );
+// }
+
+
+   
+
+
+</script>
+
+    </body>
+</html>
